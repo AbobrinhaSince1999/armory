@@ -1,7 +1,7 @@
 -- version: "1.0.0"
 function Health(props)
 	local self = {}
-	self._maxHp = props.maxHp or 100,
+	self._maxHp = props.maxHp or 100
 	self._regenRate = 1.2
 	self._current = self._maxHp
 

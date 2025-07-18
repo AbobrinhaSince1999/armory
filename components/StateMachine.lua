@@ -30,8 +30,8 @@ end
 
 function StateMachine(props)
 	local self = {}
-	self.entry = props.entry or "",
-	self.states = props.states or nil,
+	self.entry = props.entry or ""
+	self.states = props.states or nil
 	self.input = props.input or nil
 	self._enabled = true
 	self._stack = {}
