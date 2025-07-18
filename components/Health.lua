@@ -1,29 +1,18 @@
 -- version: "1.0.0"
-local Health = {}
-
-function Health.props()
-	return {
-		maxHp = 100,
-		regenRate = 1.2
-	}
-end
-
-function Health.new()
+function Health(props)
 	local self = {}
-	self.name = "Health"
-	
-	function self:onCreate()
-		self.current = self.maxHp	
-	end
-	
+	self._maxHp = props.maxHp or 100,
+	self._regenRate = 1.2
+	self._current = self._maxHp
+
 	function self:takeDamage(amount: number)
-		self.current = math.clamp(self.current - amount, 0, self.maxHp)
-		self:notify("Changed", self.current)
+		self._current = math.clamp(self._current - amount, 0, self._maxHp)
+		self:notify("Changed", self._current)
 	end
 	
 	function self:heal(amount: number)
-		self.current = math.min(self.current + amount, self.maxHp)
-		self:notify("Changed", self.current)
+		self._current = math.min(self._current + amount, self._maxHp)
+		self:notify("Changed", self._current)
 	end
 
 	return self

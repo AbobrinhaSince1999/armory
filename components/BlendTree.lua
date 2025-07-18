@@ -1,5 +1,5 @@
 -- version: "1.0.0"
-local BlendTree = {}
+local RunService = game:GetService("RunService")
 
 local function calculateBlendWeights(input, nodes)
 	local totalWeight = 0
@@ -19,24 +19,21 @@ local function calculateBlendWeights(input, nodes)
 	return weights
 end
 
-function BlendTree.props()
-	return {	
-        nodes = {}
-        maxSpeed = 16,
-	    lerpSpeed = 10,
-    }
-end
-
-function BlendTree.new()
+function BlendTree(props)
 	local self = {}
-	self.rawInputVector = Vector2.zero
-	self.inputVector = Vector2.zero
-	self.weightThreshold = 0.05
-	self.nodeGraph = {}
+	self._rawInputVector = Vector2.zero
+	self._inputVector = Vector2.zero
+	self._weightThreshold = 0.05
+	self._nodes = props.nodes or {}
+	self._maxSpeed = props.maxSpeed or 16
+	self._lerpSpeed = props.lerpSpeed or 10
 
 	function self:onCreate()
-	    for _, node in ipairs(self.nodes) do
-            table.insert(self.nodeGraph, {
+		local nodes = self._nodes
+		self._nodes = {}
+
+	    for _, node in ipairs(nodes) do
+            table.insert(self._nodes, {
                 position = node.position,
                 track = node.track,
                 weight = 0
@@ -45,22 +42,26 @@ function BlendTree.new()
             node.track:Play()
             node.track:AdjustWeight(0)
         end
+
+		self._renderSteppedConn = RunService.RenderStepped:Connect(function(dt)
+			self:_updateNodesWeight()
+		end)
 	end
 
-    function self:updateNodesWeight(dt)
-        self.inputVector = self.inputVector:Lerp(self.rawInputVector, dt * self.lerpSpeed)
-        local weights = calculateBlendWeights(self.inputVector, self.nodeGraph)
+    function self:_updateNodesWeight(dt)
+        self._inputVector = self._inputVector:Lerp(self._rawInputVector, dt * self._lerpSpeed)
+        local weights = calculateBlendWeights(self._inputVector, self._nodes)
 
-        for i, node in ipairs(self.nodeGraph) do
-            node.weight = math.lerp(node.weight, weights[i], dt * self.lerpSpeed)
-            local adjustedWeight = (node.weight > self.weightThreshold) and node.weight or 0
+        for i, node in ipairs(self._nodes) do
+            node.weight = math.lerp(node.weight, weights[i], dt * self._lerpSpeed)
+            local adjustedWeight = (node.weight > self._weightThreshold) and node.weight or 0
             node.track:AdjustWeight(adjustedWeight)
         end
     end
         
     function self:onDestroy()
-        if self._conn then
-		    self._conn:Disconnect()
+        if self._renderSteppedConn then
+		    self._renderSteppedConn:Disconnect()
 	    end
     end
 

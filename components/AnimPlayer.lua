@@ -1,17 +1,10 @@
 -- version: "1.0.0"
-local AnimPlayer = {}
-
-function AnimPlayer.props()
-	return {
-		source = "path/to/anims"
-	}
-end
-
-function AnimPlayer.new()
+function AnimPlayer(props)
 	local self = {}
 	self._animator = nil
 	self._tracks = {}
 	self._lastPlayedTrack = nil
+	self._source = props.source
 
 	function self:onCreate()
 		local humanoid = self.instance:FindFirstChild("Humanoid")
@@ -30,7 +23,7 @@ function AnimPlayer.new()
 
 		end
 
-		for _, animation in ipairs(self.source:GetChildren()) do
+		for _, animation in ipairs(self._source:GetChildren()) do
 			self:load(animation)
 		end
 	end

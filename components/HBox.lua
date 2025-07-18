@@ -1,6 +1,4 @@
 -- version: "1.0.0"
-local HBox = {}
-
 function HitValidator(hitbox, hurtbox)
 	if not hitbox:GetAttribute("enabled") or not hurtbox:GetAttribute("enabled") then
 		return
@@ -8,8 +6,8 @@ function HitValidator(hitbox, hurtbox)
 	
 	-- add Owner attribute on box shape for better decouple later
 	local Armory = require(game.ReplicatedStorage.Armory.Core)
-	local hit = Armory.find(hitbox.Parent, "HBox")
-	local hurt = Armory.find(hurtbox.Parent, "HBox")
+	local hit = Armory.get(hitbox.Parent, "HBox")
+	local hurt = Armory.get(hurtbox.Parent, "HBox")
 	
 	local hitData = {
 		hitbox = hit,
@@ -27,34 +25,27 @@ function HitValidator(hitbox, hurtbox)
 	end
 end
 
-
-function HBox.props()
-	return {
-		handle = "Default",
-		shape = "",
-		group = "Hitbox",
-	}
-end
-
-function HBox.new()
+function HBox(props)
 	local self = {}
-	self.name = "HBox"
+	self._handle = props.handle or "Default"
+	self._shape = props.handle or ""
+	self._group = props.group or "Hitbox"
 	
 	function self:onCreate()
-		local shape = self.shape
+		local shape = self._shape
 		shape.CanCollide = false
 		shape.CanTouch = false
 		shape.CanQuery = true
-		shape.CollisionGroup = self.group
+		shape.CollisionGroup = self._group
 		shape.Transparency = 0.5
 		shape:SetAttribute("enabled", true)
 
-		if self.group == "Hitbox" then
-			self.handler = require(script.handles.hit[self.handle])
+		if self._group == "Hitbox" then
+			self.handler = require(script.handles.hit[self._handle])
 		end
 
-		if self.group == "Hurtbox" then
-			self.handler = require(script.handles.hurt[self.handle])
+		if self._group == "Hurtbox" then
+			self.handler = require(script.handles.hurt[self._handle])
 		end
 	end
 
@@ -67,15 +58,15 @@ function HBox.new()
 	end
 
 	function self:enable()
-		self.shape:SetAttribute("enabled", true)
+		self._shape:SetAttribute("enabled", true)
 	end
 
 	function self:disable()
-		self.shape:SetAttribute("enabled", false)
+		self._shape:SetAttribute("enabled", false)
 	end
 
 	function self:hitTest()
-		if self.group ~= "Hitbox" then 
+		if self._group ~= "Hitbox" then 
 			return warn("[HBox] Only call HitTest on HBox components with Group set to Hitbox")
 		end
 
@@ -83,10 +74,10 @@ function HBox.new()
 		params.CollisionGroup = "Hitbox"
 
 		-- Gets parts overlapping the hitbox.
-		local parts = workspace:GetPartsInPart(self.shape, params)
+		local parts = workspace:GetPartsInPart(self._shape, params)
 
 		-- Validates each overlapping part asynchronously.
-		local hitbox = self.shape
+		local hitbox = self._shape
 		task.defer(function()
 			for _, hurtbox in ipairs(parts) do
 				HitValidator(hitbox, hurtbox)
@@ -96,7 +87,7 @@ function HBox.new()
 
 	-- Destroys the Collider and its associated shape.
 	function self:onDestroy()
-		self.shape:Destroy()
+		self._shape:Destroy()
 	end
 
 	return self

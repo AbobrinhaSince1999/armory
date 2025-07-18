@@ -1,14 +1,5 @@
 -- version: "1.0.0"
-local StateMachine = {}
 _cache = {}
-
-function StateMachine.props()
-	return {
-		entry = "",
-		states = "",
-		input = ""
-	}
-end
 
 -- Retrieves a state from cache or loads it
 local function loadState(folder, stateName)
@@ -37,8 +28,11 @@ local function loadState(folder, stateName)
 	return _cache[stateName]
 end
 
-function StateMachine.new()
+function StateMachine(props)
 	local self = {}
+	self.entry = props.entry or "",
+	self.states = props.states or nil,
+	self.input = props.input or nil
 	self._enabled = true
 	self._stack = {}
 	self._skipNextUpdate = false

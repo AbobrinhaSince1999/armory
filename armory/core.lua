@@ -16,29 +16,20 @@ local Component = require(src.component)
 local Middleware = require(src.middleware)
 local Query = require(src.query)
 
-export type Component = any
-
 local Armory = {}
 
 local _attached: { [Instance]: { [string]: Component } } = {}
 
---[[
-	Attach a component to an instance.
-	Returns the component, or the existing one if already attached.
-
-	@param instance Instance
-	@param name string -- Component name to attach
-	@param props? table -- Optional properties to override
-	@return Component
-]]
-function Armory.add(instance: Instance, name: string, props: { [string]: any }?): Component
+-- Attach a component to an instance.
+-- Returns the component, or the existing one if already attached.
+function Armory.add(name: string, props: { [string]: any }, instance: Instance)
 	_attached[instance] = _attached[instance] or {}
 
 	if _attached[instance][name] then
 		return _attached[instance][name]
 	end
 
-	local comp = Component.build(name, instance, props)
+	local comp = Component.build(name, props, instance)
 	_attached[instance][name] = comp
 	
 	Middleware.run({
@@ -52,25 +43,20 @@ function Armory.add(instance: Instance, name: string, props: { [string]: any }?)
 	return comp
 end
 
---[[
-	Retrieve a component attached to an instance.
+-- Attach multiple compenents
+function Armory.batch(instance, comps)
+	for name, props in pairs(comps) do
+		Armory.add(name, props, instance)
+	end
+end
 
-	@param instance Instance
-	@param name string
-	@return Component?
-]]
-function Armory.get(instance: Instance, name: string): Component?
+-- Retrieve a component attached to an instance.
+function Armory.get(name: string, instance: Instance)
 	return _attached[instance] and _attached[instance][name] or nil
 end
 
---[[
-	Detach a component from an instance.
-	Calls `onDestroy` if it exists, and clears observers.
-
-	@param instance Instance
-	@param name string
-]]
-function Armory.remove(instance: Instance, name: string)
+-- Detach a component from an instance.
+function Armory.remove(name: string, instance: Instance)
 	local compSet = _attached[instance]
 	if compSet and compSet[name] then
 		local comp = compSet[name]
@@ -98,12 +84,7 @@ function Armory.remove(instance: Instance, name: string)
 	end
 end
 
---[[
-	Applies a callback function to each instance in the list.
-
-	@param instances { Instance }
-	@param callback (instance: Instance) -> ()
-]]
+-- Applies a callback function to each instance in the list.
 function Armory.forEach(instances: { Instance }, callback: (Instance) -> ())
 	for _, instance in ipairs(instances) do
 		callback(instance)

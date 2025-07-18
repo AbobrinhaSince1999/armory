@@ -2,22 +2,15 @@
 local ContextActionService = game:GetService("ContextActionService")
 local RunService = game:GetService("RunService")
 
-local Input = {}
-
-function Input.props()
-	return {
-		keymap = {} -- Ex: Jump = Enum.KeyCode.Space
-	}
-end
-
-function Input.new()
+function Input(props)
 	local self = {}
 	self._bindings = {}
 	self._actions = {}
 	self._pressed = {}
 	self._held = {}
 	self._heartbeatConn = nil
-
+	self.keymap = props.keymap or {}
+	
 	function self:onCreate()
 		for name, key in pairs(self.keymap) do
 			self:bind(name, key)
