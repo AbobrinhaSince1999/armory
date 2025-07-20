@@ -1,5 +1,4 @@
--- version: "1.0.0"
-_cache = {}
+local _cache = {}
 
 -- Retrieves a state from cache or loads it
 local function loadState(folder, stateName)

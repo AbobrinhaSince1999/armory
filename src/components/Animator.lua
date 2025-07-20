@@ -1,5 +1,4 @@
--- version: "1.0.0"
-function AnimPlayer(props)
+function Animator(props)
 	local self = {}
 	self._animator = nil
 	self._tracks = {}
@@ -62,4 +61,4 @@ function AnimPlayer(props)
 	return self
 end
 
-return AnimPlayer
+return Animator

@@ -1,4 +1,3 @@
--- version: "1.0.0"
 local ContextActionService = game:GetService("ContextActionService")
 local RunService = game:GetService("RunService")
 

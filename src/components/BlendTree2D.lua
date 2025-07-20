@@ -1,4 +1,3 @@
--- version: "1.0.0"
 local RunService = game:GetService("RunService")
 
 local function calculateBlendWeights(input, nodes)
@@ -19,7 +18,7 @@ local function calculateBlendWeights(input, nodes)
 	return weights
 end
 
-function BlendTree(props)
+function BlendTree2D(props)
 	local self = {}
 	self._rawInputVector = Vector2.zero
 	self._inputVector = Vector2.zero
@@ -58,6 +57,10 @@ function BlendTree(props)
             node.track:AdjustWeight(adjustedWeight)
         end
     end
+
+	function self:setInput(rawInput)
+		self._rawInputVector = rawInput
+	end
         
     function self:onDestroy()
         if self._renderSteppedConn then
@@ -68,4 +71,4 @@ function BlendTree(props)
 	return self
 end
 
-return BlendTree
+return BlendTree2D

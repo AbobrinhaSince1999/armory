@@ -1,4 +1,3 @@
--- version: "1.0.0"
 function HitValidator(hitbox, hurtbox)
 	if not hitbox:GetAttribute("enabled") or not hurtbox:GetAttribute("enabled") then
 		return
