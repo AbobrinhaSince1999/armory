@@ -4,11 +4,11 @@ function Timer(props)
 	self.paused = false
 	self.destroyed = false
 	self.startedLoop = false
-    self.current = props.reverse and 0 or props.duration,
-	self.target = props.duration,
-	self.initialValue = props.duration,
-	self.reverse = props.reverse or false,
-	self.tickRate = props.tickRate or 1,
+    self.current = props.reverse and 0 or props.duration
+	self.duration = props.duration
+	self.target = props.duration
+	self.reverse = props.reverse or false
+	self.tickRate = props.tickRate or 1
 
     function self:start()
         self.stopped = false
