@@ -18,20 +18,18 @@ local function calculateBlendWeights(input, nodes)
 	return weights
 end
 
-function BlendTree2D(props)
-	local self = {}
-	self._rawInputVector = Vector2.zero
-	self._inputVector = Vector2.zero
-	self._weightThreshold = 0.05
-	self._nodes = props.nodes or {}
-	self._maxSpeed = props.maxSpeed or 16
-	self._lerpSpeed = props.lerpSpeed or 10
-
-	function self:onCreate()
-		local nodes = self._nodes
+function BlendTree2D(Component)
+	local self = Component("BlendTree2D")
+	
+	function self:OnCreate(data)
+		self._rawInputVector = Vector2.zero
+		self._inputVector = Vector2.zero
+		self._weightThreshold = 0.05
 		self._nodes = {}
+		self._maxSpeed = data.maxSpeed or 16
+		self._lerpSpeed = data.lerpSpeed or 10
 
-	    for _, node in ipairs(nodes) do
+	    for _, node in ipairs(data.nodes) do
             table.insert(self._nodes, {
                 position = node.position,
                 track = node.track,
@@ -43,11 +41,11 @@ function BlendTree2D(props)
         end
 
 		self._renderSteppedConn = RunService.RenderStepped:Connect(function(dt)
-			self:_updateNodesWeight()
+			self:_UpdateNodesWeight()
 		end)
 	end
 
-    function self:_updateNodesWeight(dt)
+    function self:_UpdateNodesWeight(dt)
         self._inputVector = self._inputVector:Lerp(self._rawInputVector, dt * self._lerpSpeed)
         local weights = calculateBlendWeights(self._inputVector, self._nodes)
 
@@ -58,11 +56,11 @@ function BlendTree2D(props)
         end
     end
 
-	function self:setInput(rawInput)
+	function self:SetInput(rawInput)
 		self._rawInputVector = rawInput
 	end
         
-    function self:onDestroy()
+    function self:OnDestroy()
         if self._renderSteppedConn then
 		    self._renderSteppedConn:Disconnect()
 	    end

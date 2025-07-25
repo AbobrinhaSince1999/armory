@@ -4,33 +4,34 @@ function HitValidator(hitbox, hurtbox)
 	end
 	
 	-- add Owner attribute on box shape for better decouple later
-	local Armory = require(game.ReplicatedStorage.Armory.Core)
-	local hit = Armory.get(hitbox.Parent, "HBox")
-	local hurt = Armory.get(hurtbox.Parent, "HBox")
+	local Octus = require(game.ReplicatedStorage.Octus.Core)
+	local hit = Octus(hitbox.Parent):Get("HBox")
+	local hurt = Octus(hurtbox.Parent):Get("HBox")
 	
 	local hitData = {
 		hitbox = hit,
 		hurtbox = hurt
 	}
 
-	local hitCheckPass = hit:check(hitData)
-	local hurtCheckPass = hurt:check(hitData)
+	local hitCheckPass = hit:Check(hitData)
+	local hurtCheckPass = hurt:Check(hitData)
 
 	if hitCheckPass and hurtCheckPass then
-		hit:response(hitData)
-		hurt:response(hitData)
-		hit:notify("Hitted", hitData)
-		hurt:notify("Hurted", hitData)
+		hit:Response(hitData)
+		hurt:Response(hitData)
+		hit:Notify("Hitted", hitData)
+		hurt:Notify("Hurted", hitData)
 	end
 end
 
-function HBox(props)
+function HBox(Component)
 	local self = {}
-	self._handle = props.handle or "Default"
-	self._shape = props.handle or ""
-	self._group = props.group or "Hitbox"
 	
-	function self:onCreate()
+	function self:OnCreate(data)
+		self._handle = data.handle or "Default"
+		self._shape = data.shape or ""
+		self._group = data.group or "Hitbox"
+		
 		local shape = self._shape
 		shape.CanCollide = false
 		shape.CanTouch = false
@@ -48,23 +49,23 @@ function HBox(props)
 		end
 	end
 
-	function self:check(hitData)
+	function self:Check(hitData)
 		return self.handler.check(hitData)
 	end
 
-	function self:response(hitData)
+	function self:Response(hitData)
 		self.handler.response(hitData)
 	end
 
-	function self:enable()
+	function self:Enable()
 		self._shape:SetAttribute("enabled", true)
 	end
 
-	function self:disable()
+	function self:Disable()
 		self._shape:SetAttribute("enabled", false)
 	end
 
-	function self:hitTest()
+	function self:HitTest()
 		if self._group ~= "Hitbox" then 
 			return warn("[HBox] Only call HitTest on HBox components with Group set to Hitbox")
 		end
@@ -85,7 +86,7 @@ function HBox(props)
 	end
 
 	-- Destroys the Collider and its associated shape.
-	function self:onDestroy()
+	function self:OnDestroy()
 		self._shape:Destroy()
 	end
 

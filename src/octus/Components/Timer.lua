@@ -1,16 +1,19 @@
-function Timer(props)
-	local self = {}
-	self.stopped = true
-	self.paused = false
-	self.destroyed = false
-	self.startedLoop = false
-    self.current = props.reverse and 0 or props.duration
-	self.duration = props.duration
-	self.target = props.duration
-	self.reverse = props.reverse or false
-	self.tickRate = props.tickRate or 1
+function Timer(Component)
+	local self = Component("Timer")
 
-    function self:start()
+    function self:OnCreate(data)
+        self.stopped = true
+        self.paused = false
+        self.destroyed = false
+        self.startedLoop = false
+        self.current = data.reverse and 0 or data.duration
+        self.duration = data.duration
+        self.target = data.duration
+        self.reverse = data.reverse or false
+        self.tickRate = data.tickRate or 1
+    end
+
+    function self:Start()
         self.stopped = false
         self.paused = false
 
@@ -32,24 +35,24 @@ function Timer(props)
         end
     end
 
-    function self:stop()
+    function self:Stop()
         self.stopped = true
         self.paused = false
     end
 
-    function self:pause()
+    function self:Pause()
         if not self.stopped then
             self.paused = true
         end
     end
 
-    function self:resume()
+    function self:Resume()
         if not self.stopped and self.paused then
             self.paused = false
         end
     end
 
-    function self:restart()
+    function self:Restart()
         self.paused = false
         if self.reverse then
             self.current = 0
@@ -59,7 +62,7 @@ function Timer(props)
         self.stopped = false
     end
 
-    function self:countDown()
+    function self:CountDown()
         self.current = math.max(0, self.current - self.tickRate)
         self:notify("Changed", self.current)
 
@@ -69,7 +72,7 @@ function Timer(props)
         end
     end
 
-    function self:countUp()
+    function self:CountUp()
         self.current = math.min(self.current + self.tickRate, self.target)
         self:notify("Changed", self.current)
 
@@ -79,11 +82,7 @@ function Timer(props)
         end
     end
 
-    function self:value()
-        return self.current
-    end
-
-    function self:onDestroy()
+    function self:OnDestroy()
         self.stopped = true
         self.destroyed = true
     end

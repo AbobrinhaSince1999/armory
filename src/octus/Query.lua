@@ -1,29 +1,28 @@
 --[[
 	API:
-	- Query.inject(attached): Injects component attachment data (required).
-	- Query.reset(): Clears cache and filters.
-	- Query.has(...components): Adds a filter for instances with ALL listed components.
-	- Query.only(...components): Adds a filter for instances with ONLY listed components.
-	- Query.nott(...components): Adds a filter for instances WITHOUT any of the listed components.
-	- Query.where(fn): Adds a custom filter function.
-	- Query.all(): Returns all instances that pass the current filters.
+	- Query.Update(attached):Clears cache and filters. Injects component attachment data (required)
+	- Query.Has(...components): Adds a filter for instances with ALL listed components.
+	- Query.Only(...components): Adds a filter for instances with ONLY listed components.
+	- Query.Not(...components): Adds a filter for instances WITHOUT any of the listed components.
+	- Query.Where(fn): Adds a custom filter function.
+	- Query.All(): Returns all instances that pass the current filters.
 ]]
 
 local Query = {}
 
 local _cache = {}
 local _filters = {}
-local _attached = {}
+local _components = {}
 
 -- Injects external attached component map
-function Query.update(attached)
+function Query.Update(list)
 	_cache = {}
 	_filters = {}
-	_attached = attached
+	_components = list
 end
 
 -- Must have all listed components
-function Query.has(...: string)
+function Query.Has(...: string)
 	local params = { ... }
 
 	table.insert(_filters, function(_, comps)
@@ -38,7 +37,7 @@ function Query.has(...: string)
 end
 
 -- Must have only the listed components
-function Query.only(...: string)
+function Query.Only(...: string)
 	local params = {...}
 	local required = {}
 	
@@ -62,7 +61,7 @@ function Query.only(...: string)
 end
 
 -- Must not have any of the listed components
-function Query.nott(...: string)
+function Query.Not(...: string)
 	local params = {...}
 
 	table.insert(_filters, function(_, comps)
@@ -77,20 +76,20 @@ function Query.nott(...: string)
 end
 
 -- Custom filter logic
-function Query.where(fn)
+function Query.Where(fn)
 	table.insert(_filters, fn)
 	return Query
 end
 
 -- Returns all matching instances based on current filters
-function Query.all(): { Instance }
+function Query.All(): { Instance }
 	local results: { Instance } = {}
 
-	if not _attached then
+	if not _components then
 		error("[Query] No attached component map. Use Query.update(...) first.")
 	end
 
-	for instance, comps in _attached do
+	for instance, comps in _components do
 		if _cache[instance] == nil then
 			local passed = true
 
@@ -113,7 +112,7 @@ function Query.all(): { Instance }
 end
 
 -- Applies a callback function to each instance in the list.
-function Query.forEach(instances: { Instance }, callback: (Instance) -> ())
+function Query.ForEach(instances: { Instance }, callback: (Instance) -> ())
 	for _, instance in ipairs(instances) do
 		callback(instance)
 	end

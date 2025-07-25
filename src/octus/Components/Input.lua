@@ -1,16 +1,17 @@
 local ContextActionService = game:GetService("ContextActionService")
 local RunService = game:GetService("RunService")
 
-function Input(props)
-	local self = {}
-	self._bindings = {}
-	self._actions = {}
-	self._pressed = {}
-	self._held = {}
-	self._heartbeatConn = nil
-	self.keymap = props.keymap or {}
-	
-	function self:onCreate()
+function Input(Component)
+	local self = Component("Input")
+
+	function self:OnCreate(data)
+		self._bindings = {}
+		self._actions = {}
+		self._pressed = {}
+		self._held = {}
+		self._heartbeatConn = nil
+		self.keymap = data.keymap or {}
+
 		for name, key in pairs(self.keymap) do
 			self:bind(name, key)
 		end
@@ -18,13 +19,13 @@ function Input(props)
 		self._heartbeatConn = RunService.Heartbeat:Connect(function()
 			for name, isHeld in pairs(self._pressed) do
 				if isHeld then
-					self:notify(name, "held")
+					self:Notify(name, "held")
 				end
 			end
 		end)
 	end
 
-	function self:onDestroy()
+	function self:OnDestroy()
 		for name in pairs(self._actions) do
 			ContextActionService:UnbindAction(name)
 		end
@@ -33,7 +34,7 @@ function Input(props)
 		end
 	end
 
-	function self:bind(name: string, key)
+	function self:Bind(name: string, key)
 		self:unbind(name)
 		self._bindings[name] = key
 
@@ -55,7 +56,7 @@ function Input(props)
 		self._actions[name] = true
 	end
 
-	function self:unbind(name: string)
+	function self:Unbind(name: string)
 		if self._actions[name] then
 			ContextActionService:UnbindAction(name)
 			self._actions[name] = nil
@@ -64,15 +65,15 @@ function Input(props)
 		end
 	end
 
-	function self:holding(name: string): boolean
+	function self:Holding(name: string): boolean
 		return self._pressed[name] == true
 	end
 	
-	function self:released(name: string): boolean
+	function self:Released(name: string): boolean
 		return not self:holding(name)
 	end
 
-	function self:getBinding(name: string)
+	function self:GetBinding(name: string)
 		return self._bindings[name]
 	end
 

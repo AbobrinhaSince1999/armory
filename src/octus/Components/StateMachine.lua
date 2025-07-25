@@ -27,35 +27,36 @@ local function loadState(folder, stateName)
 	return _cache[stateName]
 end
 
-function StateMachine(props)
-	local self = {}
-	self.entry = props.entry or ""
-	self.states = props.states or nil
-	self.input = props.input or nil
-	self._enabled = true
-	self._stack = {}
-	self._skipNextUpdate = false
+function StateMachine(Component)
+	local self = Component("StateMachine")
 
-	function self:onCreate()
+	function self:OnCreate(data)
+		self._enabled = true
+		self._stack = {}
+		self._skipNextUpdate = false
+		self.entry = data.entry or ""
+		self.states = data.states or nil
+		self.input = data.input or nil
+
 		if self.entry then
 			self:setState(self.entry) -- Set initial state if provided
 		end
 	end
 
 	-- Handles input and propagates it through states
-	function self:handleInput(dt)
+	function self:HandleInput(dt)
 		local index = 1
 		while index <= #self._stack do
 			local state = self._stack[index]
 			if not state then return end
 
-			local value = state.handleInput(self.instance, self.input, dt)
+			local value = state.HandleInput(self.instance, self.input, dt)
 			if type(value) == "string" then
 				if value == "pass" then
 					index += 1 -- advance to next state
 				else
 					self._skipNextUpdate = true
-					self:setState(value)
+					self:SetState(value)
 					return
 				end
 			else
@@ -65,18 +66,18 @@ function StateMachine(props)
 	end
 
 	-- Updates the current state
-	function self:updateState(input, dt)
+	function self:UpdateState(input, dt)
 		local state = self._stack[1]
 		if not state then return end
 
-		local value = state.update(self.instance, input, dt)
+		local value = state.Update(self.parent, input, dt)
 		if type(value) == "string" then
-			self:setState(value) -- Switch state if a new state name is returned
+			self:SetState(value) -- Switch state if a new state name is returned
 		end
 	end
 
 	-- Sets the current state by name
-	function self:setState(stateName)
+	function self:SetState(stateName)
 		if self._stack[1] and self._stack[1].name == stateName then return end
 
 		if not stateName or stateName == "" then
@@ -86,7 +87,7 @@ function StateMachine(props)
 		-- Exit the current state if it exists and has an exit method
 		if self._stack[1] then
 			if self._stack[1].exit then
-				self._stack[1].exit(self.instance)
+				self._stack[1].exit(self.parent)
 			end
 		end
 
@@ -101,20 +102,20 @@ function StateMachine(props)
 
 		-- Enter the new state if it has an enter method
 		if self._stack[1] and self._stack[1].enter then
-			self._stack[1].enter(self.instance)
+			self._stack[1].enter(self.parent)
 		end
 		
-		self:notify("StateChanged", self._stack[1].name)
+		self:Notify("StateChanged", self._stack[1].name)
 	end
 
 	-- Step function to handle input and update state
-	function self:step(dt)
+	function self:Step(dt)
 		if not self._enabled then return end
 
-		self:handleInput(dt)
+		self:HandleInput(dt)
 
 		if not self._skipNextUpdate then
-			self:updateState(dt)
+			self:UpdateState(dt)
 		end
 
 		self._skipNextUpdate = false
