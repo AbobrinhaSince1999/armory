@@ -1,6 +1,6 @@
 local function Component(name: string)
     local self = {}
-    self.name = name
+	self.name = name
 	self.parent = nil
     self._events = {}
 
@@ -14,12 +14,12 @@ local function Component(name: string)
     function self:OnDestroy()
     end
 
-    function self:Sub(event: string, callback: EventCallback)
+    function self:On(event: string, callback: EventCallback)
 		self._events[event] = self._events[event] or {}
 		table.insert(self._events[event], callback)
 	end
 
-	function self:Unsub(event: string, callback: EventCallback)
+	function self:Off(event: string, callback: EventCallback)
 		local listeners = self._events[event]
 		if not listeners then return end
 
@@ -41,8 +41,8 @@ local function Component(name: string)
 
     function self:ClearEvents()
         self._events = nil
-    end
-
+	end
+	
 	return self
 end
 

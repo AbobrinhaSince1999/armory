@@ -2,9 +2,9 @@ local function Health(Component)
 	local self = Component("Health")
 
 	function self:OnCreate(data)
-		self.maxHealth = data.MaxHealth or 100
+		self.maxHealth = data.MaxHp or 100
 		self.regenRate = 1.5
-		self.current = self.maxHealth
+		self.current = self.MaxHp
 	end
 
 	function self:TakeDamage(amount: number)

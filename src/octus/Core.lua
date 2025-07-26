@@ -12,7 +12,7 @@ local function _lazyLoad(name)
 	return _cache[name]
 end
 
-local function ComponentHandler(instance: Instance)
+local function ComponentHandler(_, instance: Instance)
 	local self = {}
 	self.instance = instance 
 	
@@ -24,7 +24,7 @@ local function ComponentHandler(instance: Instance)
 			return _components[self.instance][name]
 		end
 
-		local comp = _lazyLoad(name)(Component)
+		local comp = _lazyLoad(name)(Component)		
 		_components[self.instance][name] = comp
 		
 		comp.parent = self.instance
@@ -32,7 +32,7 @@ local function ComponentHandler(instance: Instance)
 
 		Query.Update(_components)
 
-		return comp
+		return self
 	end
 
 	-- Retrieve a component added to an instance.
@@ -60,6 +60,10 @@ local function ComponentHandler(instance: Instance)
 			Query.Update(_components)
 		end
 	end
+	
+	function self:All()
+		return _components[self.instance]
+	end
 
 	--[[ Attach multiple compenents
 	function Component.batch(instance, comps)
@@ -71,9 +75,11 @@ local function ComponentHandler(instance: Instance)
 	return self
 end
 
-return setmetatable({}, {
+local Core = setmetatable({}, {
     __call = ComponentHandler,
-    __index = function(_, key)
+	__index = function(_, key)
         return Query[key]
     end
 })
+
+return Core
